@@ -1,5 +1,5 @@
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.ggp.base.apps.player.Player;
 import org.ggp.base.util.statemachine.MachineState;
@@ -12,7 +12,7 @@ import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
-public class RandomPlayer extends GGPlayer {
+public class CompulsiveDeliberationPlayer extends GGPlayer {
 
 	/**
 	 * All we have to do here is call the Player's initialize method with
@@ -21,7 +21,7 @@ public class RandomPlayer extends GGPlayer {
 	 * of your own player.
 	 */
 	public static void main(String[] args) {
-		Player.initialize(new RandomPlayer().getName());
+		Player.initialize(new CompulsiveDeliberationPlayer().getName());
 	}
 
 	/**
@@ -76,17 +76,65 @@ public class RandomPlayer extends GGPlayer {
 		//Gets our role (e.g. X or O in a game of tic tac toe)
 		Role role = getRole();
 
-		//Gets all legal moves for our player in the current state
-		List<Move> legalMoves = findLegals(role, state, machine);
+		//Returns the best move after searching full tree
+		Move chosenMove = computeBestMove(machine, role, state);
 
-		//Returns a random move from all legal moves
-		Random rand = new Random();
-		int randIdx = rand.nextInt(legalMoves.size());
-		Move chosenMove = legalMoves.get(randIdx);
 		//Logging what decisions your player is making as well as other statistics
 		//is a great way to debug your player and benchmark it against other players.
 		System.out.println("I am playing: " + chosenMove);
 		return chosenMove;
+	}
+
+	/*
+	 * computeBestMove
+	 * @Params:
+	 * StateMachine, Role, MachineState
+	 * @Returns:
+	 * Move best move found
+	 * Iterates through all legal moves in current state, recursively searching the entire tree of possible moves from those.
+	 * Returns the move that results in the highest reward state
+	 */
+	private Move computeBestMove(StateMachine machine, Role role, MachineState state) throws MoveDefinitionException, TransitionDefinitionException, GoalDefinitionException {
+		List<Move> legalMoves = findLegals(role, state, machine);		// All legal moves from current state
+		Move move = legalMoves.get(0);									// Keep track of best move found
+		int score = 0;													// Keep track of best score found
+
+		/* Iterate through all legal moves from current state, chose best */
+		for (int i = 0; i < legalMoves.size(); i++) {
+			List<Move> nextMove = new ArrayList<Move>();
+			nextMove.add(legalMoves.get(i));
+			int result = computeMaxScore(role, findNext(nextMove, state, machine), machine);
+			if (result == 100) return legalMoves.get(i);
+			if (result > score) {
+				score = result;
+				move = legalMoves.get(i);
+			}
+		}
+		return move;
+	}
+
+	/*
+	 * computeMaxScore
+	 * @Params:
+	 * Role, MachineState, StateMachine
+	 * @Returns:
+	 * int max score found
+	 * Iterates through all legal moves in current state, recursively searching entire tree of possible moves from those.
+	 * Returns the best score possible from the given possible moves
+	 */
+	private int computeMaxScore(Role role, MachineState state, StateMachine machine) throws GoalDefinitionException, MoveDefinitionException, TransitionDefinitionException {
+		if (findTerminalp(state, machine)) return findReward(role, state, machine);			// Return current state's reward if in terminal state
+
+		/* Iterate through all legal moves from current state and recur */
+		List<Move> legalMoves = findLegals(role, state, machine);		// All legal moves from current state
+		int score = 0;
+		for (int i = 0; i < legalMoves.size(); i++) {
+			List<Move> nextMove = new ArrayList<Move>();
+			nextMove.add(legalMoves.get(i));
+			int result = computeMaxScore(role, findNext(nextMove, state, machine), machine);
+			if (result > score) score = result;
+		}
+		return score;
 	}
 
 	/**
@@ -111,7 +159,7 @@ public class RandomPlayer extends GGPlayer {
 	 */
 	@Override
 	public String getName() {
-		return "random_player";
+		return "compulsive_deliberation_player";
 	}
 
 
