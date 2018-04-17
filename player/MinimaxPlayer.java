@@ -21,7 +21,7 @@ public class MinimaxPlayer extends GGPlayer {
 	 * of your own player.
 	 */
 	public static void main(String[] args) {
-		Player.initialize(new CompulsiveDeliberationPlayer().getName());
+		Player.initialize(new MinimaxPlayer().getName());
 	}
 
 	/**
