@@ -8,6 +8,6 @@ ASSIGNMENT 3
 
 @Ian- submit #2 (node-limited) and #5 (reward heuristic) by Sunday EOD
 
-@Calb- submit #3 (time-limited) and #6 (keep alive heuristic) by Sunday EOD
+@Caleb- submit #3 (time-limited) and #6 (keep alive heuristic) by Sunday EOD
 
 @Max- do #7 and submit code (Monday EOD)
