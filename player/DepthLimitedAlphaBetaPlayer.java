@@ -103,7 +103,7 @@ public class DepthLimitedAlphaBetaPlayer extends GGPlayer {
 		/* Iterate through all legal moves from current state, chose best */
 		for (int i = 0; i < legalMoves.size(); i++) {
 			Move nextMove = legalMoves.get(i);
-			int maxDepth = 12;
+			int maxDepth = 10;
 			int result = computeMinScore(role, state, machine, nextMove, 0, 100, maxDepth);
 			if (result == 100) return nextMove;
 
