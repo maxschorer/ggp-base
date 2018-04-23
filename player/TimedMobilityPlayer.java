@@ -14,7 +14,7 @@ import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
 
-public class TimedPlayerMobility extends GGPlayer {
+public class TimedMobilityPlayer extends GGPlayer {
 
 	/**
 	 * All we have to do here is call the Player's initialize method with
@@ -23,7 +23,7 @@ public class TimedPlayerMobility extends GGPlayer {
 	 * of your own player.
 	 */
 	public static void main(String[] args) {
-		Player.initialize(new TimedPlayerMobility().getName());
+		Player.initialize(new TimedMobilityPlayer().getName());
 	}
 
 	/*
