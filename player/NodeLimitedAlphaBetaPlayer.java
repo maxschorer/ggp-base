@@ -13,7 +13,6 @@ import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
 
 public class NodeLimitedAlphaBetaPlayer extends GGPlayer {
-
 	/**
 	 * All we have to do here is call the Player's initialize method with
 	 * our name as the argument so that the Player GUI knows which name to
@@ -100,10 +99,13 @@ public class NodeLimitedAlphaBetaPlayer extends GGPlayer {
 		Move move = legalMoves.get(0);									// Keep track of best move found
 		int score = 0;													// Keep track of best score found
 
+
+
+
 		/* Iterate through all legal moves from current state, chose best */
 		for (int i = 0; i < legalMoves.size(); i++) {
+			int maxNodes = 100000/legalMoves.size();
 			Move nextMove = legalMoves.get(i);
-			int maxNodes = 10;
 			int result = computeMinScore(role, state, machine, nextMove, 0, 100, maxNodes);
 			if (result == 100) return nextMove;
 
@@ -128,12 +130,11 @@ public class NodeLimitedAlphaBetaPlayer extends GGPlayer {
 			throws GoalDefinitionException, MoveDefinitionException, TransitionDefinitionException {
 		/* Iterate through all legal moves from current state and recur */
 		List<List<Move>> legalJoints = findLegalJoints(role, move, state, machine);
+		if (legalJoints.size() == 1) { nodes--; }
 		for (int i = 0; i < legalJoints.size(); i++) {
 			List<Move> moves = legalJoints.get(i);
 			MachineState newState = findNext(moves, state, machine);
-			nodes -= 1;
-			if (nodes <= 0) nodes = 0;
-			int result = computeMaxScore(role, newState, machine, alpha, beta, nodes);
+			int result = computeMaxScore(role, newState, machine, alpha, beta, nodes/legalJoints.size());
 			if (result < beta) { beta = result; }
 			if (beta <= alpha) { return alpha; }
 		}
@@ -153,12 +154,13 @@ public class NodeLimitedAlphaBetaPlayer extends GGPlayer {
 	private int computeMaxScore(Role role, MachineState state, StateMachine machine, int alpha, int beta, int nodes)
 			throws GoalDefinitionException, MoveDefinitionException, TransitionDefinitionException {
 		if (findTerminalp(state, machine)) { return findReward(role, state, machine); }// Return current state's reward if in terminal state
-		if (nodes == 0) {return 0;}
+		if (nodes <= 0) { return 0; }
 
 		/* Iterate through all legal moves from current state and recur */
 		List<Move> legalMoves = findLegals(role, state, machine);		// All legal moves from current state
-		for (int i = 0; i < legalMoves.size(); i++) {
-			int result = computeMinScore(role, state, machine, legalMoves.get(i), alpha, beta, nodes);
+		if (legalMoves.size() == 1) { nodes--; }
+ 		for (int i = 0; i < legalMoves.size(); i++) {
+			int result = computeMinScore(role, state, machine, legalMoves.get(i), alpha, beta, nodes/legalMoves.size());
 			if (result > alpha) { alpha = result; }
 			if (alpha >= beta) { return beta; }
 		}

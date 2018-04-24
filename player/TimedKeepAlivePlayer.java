@@ -14,7 +14,7 @@ import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
 
-public class TimedPlayer extends GGPlayer {
+public class TimedKeepAlivePlayer extends GGPlayer {
 
 	/**
 	 * All we have to do here is call the Player's initialize method with
@@ -23,7 +23,7 @@ public class TimedPlayer extends GGPlayer {
 	 * of your own player.
 	 */
 	public static void main(String[] args) {
-		Player.initialize(new TimedPlayer().getName());
+		Player.initialize(new TimedKeepAlivePlayer().getName());
 	}
 
 	/*
@@ -31,6 +31,32 @@ public class TimedPlayer extends GGPlayer {
 	 */
 	private List<Thread> threadList = new ArrayList<Thread>();
 
+
+	private class Score {
+		private int R;
+		private int M;
+		private boolean T;
+
+		public Score(int reward, int mobility, boolean terminal) {
+			R = reward;
+			M = mobility;
+			T = terminal;
+		}
+
+		public boolean LessThan(Score other) {
+			return (R < other.R)
+					|| (R == other.R && R != 100 && T && !other.T)
+					|| (R == other.R && T == other.T && M < other.M);
+		}
+
+		public boolean Equal(Score other) {
+			return R == other.R && M == other.M && T == other.T;
+		}
+
+		public boolean LessThanEqual(Score other) {
+			return LessThan(other) || Equal(other);
+		}
+	}
 	/**
 	 * Worker does AlphaBeta search with increasing window size
 	 *
@@ -40,11 +66,13 @@ public class TimedPlayer extends GGPlayer {
 		private volatile Move m_bestMove;
 		private volatile int m_explored;
 
-		private int m_score;
+		private Score m_score;
 		private StateMachine m_machine;
 		private Role m_role;
 		private MachineState m_state;
 		private List<Move> m_legalMoves;
+
+		private boolean m_allTerminal;
 
 		public WorkerPlayer(StateMachine machine, Role role, MachineState state)
 				throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException {
@@ -55,16 +83,17 @@ public class TimedPlayer extends GGPlayer {
 
 			m_legalMoves = findLegals(role, state, machine);		// All legal moves from current state
 			m_bestMove = m_legalMoves.get(0);
-			m_score = 0;
+			m_score = new Score(0, 0, true);
 			m_explored = 0;
+			m_allTerminal = false;
 		}
 
-		private int heuristic(Role role, MachineState state, StateMachine machine) throws GoalDefinitionException {
-			if (findTerminalp(state, machine)) {
-				return findReward(role, state, machine);
-			} else {
-				return 0;
-			}
+		private Score heuristic(Role role, MachineState state, StateMachine machine) throws GoalDefinitionException, MoveDefinitionException {
+			int r = findReward(role, state, machine);
+			int m = (int)(100.0 *findLegals(role, state, machine).size() / findActions(role, machine).size());
+			boolean t = findTerminalp(state, machine);
+			m_allTerminal &= t;
+			return new Score(r, m, t);
 		}
 
 		public void stop() {
@@ -81,18 +110,22 @@ public class TimedPlayer extends GGPlayer {
 		@Override
 		public void run()  {
 			int depth = 0;
-			while (!m_halt) {
+			Score s0 = new Score(0, 0, true);
+			Score s100 = new Score(100, 0, true);
+
+			while (!m_halt && !m_allTerminal) {
+				m_allTerminal = true;
 				for (int i = 0; i < m_legalMoves.size() && !m_halt; i++) {
 					Move nextMove = m_legalMoves.get(i);
-					int result;
+					Score result;
 					try {
-						result = computeMinScore(m_role, m_state, m_machine, nextMove, 0, 100, depth);
+						result = computeMinScore(m_role, m_state, m_machine, nextMove, s0, s100, depth);
 					} catch (GoalDefinitionException | MoveDefinitionException | TransitionDefinitionException e) {
 						//Something went wrong
 						e.printStackTrace();
 						continue;
 					}
-					if (result > m_score) {
+					if (m_score.LessThan(result)) {
 						m_score = result;
 						m_bestMove = nextMove;
 					}
@@ -112,7 +145,7 @@ public class TimedPlayer extends GGPlayer {
 		 * Iterates through all legal moves in current state, recursively searching entire tree of possible moves from those, unless beta exceeds alpha.
 		 * Returns the best score possible from the given possible moves
 		 */
-		private int computeMinScore(Role role, MachineState state, StateMachine machine, Move move, int alpha, int beta, int depth)
+		private Score computeMinScore(Role role, MachineState state, StateMachine machine, Move move, Score alpha, Score beta, int depth)
 				throws GoalDefinitionException, MoveDefinitionException, TransitionDefinitionException {
 			++m_explored;
 			/* Iterate through all legal moves from current state and recur */
@@ -121,9 +154,9 @@ public class TimedPlayer extends GGPlayer {
 			for (int i = 0; i < legalJoints.size() && !m_halt; i++) {
 				List<Move> moves = legalJoints.get(i);
 				MachineState newState = findNext(moves, state, machine);
-				int result = computeMaxScore(role, newState, machine, alpha, beta, depth);
-				if (result < beta) { beta = result; }
-				if (beta <= alpha) { return alpha; }
+				Score result = computeMaxScore(role, newState, machine, alpha, beta, depth);
+				if (result.LessThan(beta)) { beta = result; }
+				if (beta.LessThanEqual(alpha)) { return alpha; }
 			}
 			return beta;
 		}
@@ -138,21 +171,19 @@ public class TimedPlayer extends GGPlayer {
 		 * Iterates through all legal moves in current state, recursively searching entire tree of possible moves from those, unless alpha exceeds beta.
 		 * Returns the best score possible from the given possible moves
 		 */
-		private int computeMaxScore(Role role, MachineState state, StateMachine machine, int alpha, int beta, int depth)
+		private Score computeMaxScore(Role role, MachineState state, StateMachine machine, Score alpha, Score beta, int depth)
 				throws GoalDefinitionException, MoveDefinitionException, TransitionDefinitionException {
 			++m_explored;
-			if (findTerminalp(state, machine)) {
-				return findReward(role, state, machine); // Return current state's reward if in terminal state
-			} else if (depth == 0) {
+			if (depth == 0 || findTerminalp(state, machine)) {
 				return heuristic(role, state, machine);  // Return current state's heuristic
 			}
 
 			/* Iterate through all legal moves from current state and recur */
 			List<Move> legalMoves = findLegals(role, state, machine);		// All legal moves from current state
 			for (int i = 0; i < legalMoves.size() && !m_halt; i++) {
-				int result = computeMinScore(role, state, machine, legalMoves.get(i), alpha, beta, depth - 1);
-				if (result > alpha) { alpha = result; }
-				if (alpha >= beta) { return beta; }
+				Score result = computeMinScore(role, state, machine, legalMoves.get(i), alpha, beta, depth - 1);
+				if (alpha.LessThan(result)) { alpha = result; }
+				if (beta.LessThanEqual(alpha)) { return beta; }
 			}
 			return alpha;
 		}
@@ -278,7 +309,7 @@ public class TimedPlayer extends GGPlayer {
 	 */
 	@Override
 	public String getName() {
-		return "Timed_player";
+		return "TimedKeepAlive_player";
 	}
 
 

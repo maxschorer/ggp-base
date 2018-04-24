@@ -68,9 +68,7 @@ public class TimedMobilityPlayer extends GGPlayer {
 			m_halt = true;
 		}
 		public Move getBest() {
-			synchronized (m_bestMove) {
-				return m_bestMove;
-			}
+			return m_bestMove;
 		}
 
 		public int numExplored() {
@@ -93,7 +91,7 @@ public class TimedMobilityPlayer extends GGPlayer {
 					}
 					if (result > m_score) {
 						m_score = result;
-						synchronized (m_bestMove) { m_bestMove = nextMove; }
+						m_bestMove = nextMove;
 					}
 				}
 
