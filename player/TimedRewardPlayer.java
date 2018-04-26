@@ -212,16 +212,24 @@ public class TimedRewardPlayer extends GGPlayer {
 		threadList.add(t);
 
 		/* Let the thread run until 1.5 seconds are left to search */
+		long tleft = timeout - System.currentTimeMillis() - 1500;
+		if (tleft <= 0) {
+			tleft = 1;
+		}
 		try {
-			t.join(timeout - System.currentTimeMillis() - 1500);
+			t.join(tleft);
 		} catch (InterruptedException e) {
 
 		}
 		//Stop the slave
 		w.stop();
 		/* Let the thread run until 1 seconds are left to halt (shouldn't take that long) */
+		tleft = timeout - System.currentTimeMillis() - 1000;
+		if (tleft <= 0) {
+			tleft = 1;
+		}
 		try {
-			t.join(timeout - System.currentTimeMillis() - 1000);
+			t.join(tleft);
 		} catch (InterruptedException e) {
 
 		}
