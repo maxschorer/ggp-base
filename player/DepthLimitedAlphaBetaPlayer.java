@@ -107,7 +107,6 @@ public class DepthLimitedAlphaBetaPlayer extends GGPlayer {
 			int result = computeMinScore(role, state, machine, nextMove, 0, 100, maxDepth);
 			if (result == 100) return nextMove;
 
-
 			if (result > score) {
 				score = result;
 				move = nextMove;
