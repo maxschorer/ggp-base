@@ -75,7 +75,7 @@ public class TimedMCTSPlayer extends GGPlayer {
 		@Override
 		public void run()  {
 			//int depth = 0;
-			Node root = new Node(m_role, m_machine, m_state, null);
+			Node root = new Node(m_role, m_state, null, null, "max");
 			while (!m_halt) {
 
 				try {
@@ -91,7 +91,7 @@ public class TimedMCTSPlayer extends GGPlayer {
 			}
 
 			try {
-				List<Move> legals = findLegals(root.role, root.state, root.machine);
+				List<Move> legals = findLegals(root.role, root.state, m_machine); //will this state persist?
 				double bestScore = -1.0;
 				int bestInd = -1;
 				for (int i = 0; i < legals.size(); i++) {
@@ -109,13 +109,34 @@ public class TimedMCTSPlayer extends GGPlayer {
 
 		}
 
+		/*
+		 * emptyGrandChild
+		 */
+		private Node emptyGrandChild(Node node) {
+			for (int i = 0; i < node.children.size(); i++) {
+				Node child = node.children.get(i);
+				for (int j = 0; j < child.children.size(); j++) {
+					Node grandChild = child.children.get(j);
+					if (grandChild.visits == 0) return grandChild;
+				}
+			}
+			return null;
+		}
+
 
 		/*
-		 * search
+		 * Select
 		 */
 		private Node select(Node node){
 			if (node.visits == 0) return node;
+			Node grandChild = emptyGrandChild(node);
+			if (grandChild != null) return grandChild;
 
+			return select(selectGrandChild(node));
+
+		}
+
+		private Node selectGrandChild(Node node) {
 			double score = -1.0;
 			Node result = null;
 
@@ -125,7 +146,8 @@ public class TimedMCTSPlayer extends GGPlayer {
 				score = newScore;
 				result = node.children.get(i);
 			}
-			return select(result);
+			if (node.type == "min") return result;
+			return selectGrandChild(result);
 		}
 
 		private double selectFn(Node node) {
@@ -135,16 +157,22 @@ public class TimedMCTSPlayer extends GGPlayer {
 
 		/*
 		 * Expand
+		 * Expands both children (max nodes) and grandchildren (min nodes)
 		 */
 		private void expand(Node node) throws MoveDefinitionException, TransitionDefinitionException{
-			List<Move> legals = findLegals(node.role, node.state, node.machine);
+			List<Move> legals = findLegals(node.role, node.state, m_machine);
 			for (int i = 0; i < legals.size(); i++) {
-				List<Move> move = null; // how to initialize?
-				move.add(legals.get(i));
-				MachineState newState = findNext(move, node.state, node.machine);
-				//m_role, m_machine, m_state, null
-				Node newNode = new Node(m_role, m_machine, newState, node);
-				node.children.add(newNode);
+				Move move = legals.get(i);
+				//Node(Role role, MachineState state, Move move, Node parent, String type)
+				Node child = new Node(node.role, null, move, node, "min");
+				node.children.add(child);
+				List<List<Move>> legalJoints = findLegalJoints(node.role, move, node.state, m_machine);
+				for (int j = 0; j < legalJoints.size(); j++) {
+					List<Move> moves = legalJoints.get(j);
+					MachineState newState = findNext(moves, node.state, m_machine);
+					Node grandChild = new Node(null, newState, null, child, "max");
+					child.children.add(grandChild);
+				}
 			}
 		}
 
@@ -153,7 +181,7 @@ public class TimedMCTSPlayer extends GGPlayer {
 		 */
 
 		private int simulate(Node node) throws GoalDefinitionException, TransitionDefinitionException, MoveDefinitionException {
-			return depthcharge(node.role, node.state, node.machine);
+			return montecarlo(node.role, node.state, m_machine, 4);
 		}
 
 		/*
@@ -370,7 +398,7 @@ public class TimedMCTSPlayer extends GGPlayer {
 	 */
 	@Override
 	public String getName() {
-		return "TimedMonteCarlo_player";
+		return "TimedMCTSPlayer";
 	}
 
 
