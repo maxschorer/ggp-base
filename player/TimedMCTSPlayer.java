@@ -112,6 +112,16 @@ public class TimedMCTSPlayer extends GGPlayer {
 
 		/*
 		 * Select
+		 * If our node has 0 visits, then return the node.  If the node has an empty
+		 * grandchild, i.e. a grandchild with 0 visits, return the grandchild.
+		 * Otherwise, recursively call select on the selectedGrandChild.
+		 */
+
+		/*
+		 * Use the selectFn to identify the child with the highest score.
+		 * If the current node is a min node, that means the selected child
+		 * is a max node, and we return that node.  Otherwise, recursively
+		 * call grandChild.
 		 */
 		private Node select(Node node) {
 			if (node.children.isEmpty()) {
@@ -142,7 +152,8 @@ public class TimedMCTSPlayer extends GGPlayer {
 		}
 
 		/*
-		 * Expand Expands both children (max nodes) and grandchildren (min nodes)
+		 * Expand
+		 * Creates children (min nodes) as well as grandchildren nodes.
 		 */
 		private void expand(Node node) throws MoveDefinitionException, TransitionDefinitionException {
 			if (findTerminalp(node.state, m_machine)) {
