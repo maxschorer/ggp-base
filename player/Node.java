@@ -1,4 +1,5 @@
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.ggp.base.util.statemachine.MachineState;
@@ -7,13 +8,14 @@ import org.ggp.base.util.statemachine.Role;
 
 
 public class Node {
-	public Node(Role role, MachineState state, Move move, Node parent, String type) {
+	public Node(Node parent, Role role, MachineState state, Move move) {
+		this.parent = parent;
 		this.role = role;
 		this.state = state;
 		this.utility = 0.0;
 		this.visits = 0;
-		this.type = type;
 		this.move = move;
+		children = new ArrayList<Node>();
 	}
 
 	Role role;
@@ -23,5 +25,4 @@ public class Node {
 	int visits;
 	Node parent;
 	List<Node> children;
-	String type;
 }
