@@ -23,5 +23,5 @@ public class Node {
 	int visits;
 	Node parent;
 	List<Node> children;
-	String type;
+	String type; //two types: max (for our player) and min (for opponent)
 }

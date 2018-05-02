@@ -110,7 +110,22 @@ public class TimedMCTSPlayer extends GGPlayer {
 		}
 
 		/*
-		 * emptyGrandChild
+		 * Select
+		 * If our node has 0 visits, then return the node.  If the node has an empty
+		 * grandchild, i.e. a grandchild with 0 visits, return the grandchild.
+		 * Otherwise, recursively call select on the selectedGrandChild.
+		 */
+		private Node select(Node node){
+			if (node.visits == 0) return node;
+			Node grandChild = emptyGrandChild(node);
+			if (grandChild != null) return grandChild;
+
+			return select(selectGrandChild(node));
+
+		}
+
+		/*
+		 * Helper function to find in any grandChildren are empty
 		 */
 		private Node emptyGrandChild(Node node) {
 			for (int i = 0; i < node.children.size(); i++) {
@@ -123,19 +138,12 @@ public class TimedMCTSPlayer extends GGPlayer {
 			return null;
 		}
 
-
 		/*
-		 * Select
+		 * Use the selectFn to identify the child with the highest score.
+		 * If the current node is a min node, that means the selected child
+		 * is a max node, and we return that node.  Otherwise, recursively
+		 * call grandChild.
 		 */
-		private Node select(Node node){
-			if (node.visits == 0) return node;
-			Node grandChild = emptyGrandChild(node);
-			if (grandChild != null) return grandChild;
-
-			return select(selectGrandChild(node));
-
-		}
-
 		private Node selectGrandChild(Node node) {
 			double score = -1.0;
 			Node result = null;
@@ -157,7 +165,7 @@ public class TimedMCTSPlayer extends GGPlayer {
 
 		/*
 		 * Expand
-		 * Expands both children (max nodes) and grandchildren (min nodes)
+		 * Creates children (min nodes) as well as grandchildren nodes.
 		 */
 		private void expand(Node node) throws MoveDefinitionException, TransitionDefinitionException{
 			List<Move> legals = findLegals(node.role, node.state, m_machine);
