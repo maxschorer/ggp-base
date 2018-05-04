@@ -1,51 +1,14 @@
 package mic.assignment4;
 
-import org.ggp.base.util.statemachine.MachineState;
-import org.ggp.base.util.statemachine.Move;
-import org.ggp.base.util.statemachine.Role;
-import org.ggp.base.util.statemachine.StateMachine;
+import java.util.concurrent.ThreadLocalRandom;
 
-import mic.GameProperties;
-import mic.Worker;
-import mic.WorkerBase;
+import mic.base.heuristic.MonteCarloHeuristic;
+import mic.base.worker.AlphaBetaWorker;
 
-public class Assignment4_1Worker extends WorkerBase {
-	/* See AlphaBetaWorker */
+public class Assignment4_1Worker extends AlphaBetaWorker {
 
-	@Override
-	public void stop() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void initialize(StateMachine machine, MachineState state, Role role, GameProperties properties) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public int eval(Move move) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public Move getBest() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Worker clone() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-
+	public Assignment4_1Worker() {
+		super(new MonteCarloHeuristic(4, ThreadLocalRandom.current()));
 	}
 
 }

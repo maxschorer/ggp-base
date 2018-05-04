@@ -5,10 +5,10 @@ import java.util.Vector;
 
 import org.ggp.base.apps.player.Player;
 
-import mic.Manager;
-import mic.ThreadPlayer;
-import mic.TopChoiceManager;
-import mic.Worker;
+import mic.base.manager.Manager;
+import mic.base.manager.TopChoiceManager;
+import mic.base.player.ThreadPlayer;
+import mic.base.worker.Worker;
 import mic.competition.CompetitionPlayer;
 
 public class Assignment4Player extends ThreadPlayer {

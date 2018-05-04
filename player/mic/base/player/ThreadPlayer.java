@@ -1,4 +1,4 @@
-package mic;
+package mic.base.player;
 
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
@@ -9,6 +9,8 @@ import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
+
+import mic.base.manager.Manager;
 
 public abstract class ThreadPlayer extends GGPlayer {
 
@@ -38,13 +40,21 @@ public abstract class ThreadPlayer extends GGPlayer {
 		manager.start(machine, state, role);
 
 		try {
-			managerThread.join(timeout - System.currentTimeMillis() - PREFERRED_PLAY_BUFFER);
+			long tleft = Math.max(timeout - System.currentTimeMillis()  - PREFERRED_PLAY_BUFFER - 550, 1);
+			managerThread.join(tleft);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		manager.stop();
+		try {
+			long tleft = Math.max(timeout - System.currentTimeMillis()  - PREFERRED_PLAY_BUFFER - 50, 1);
+			managerThread.join(tleft);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
-		manager.stop();
-	    System.out.println(manager.getBestMove());
+
+		System.out.println(manager.getBestMove());
 		return manager.getBestMove();
 	}
 
@@ -56,7 +66,7 @@ public abstract class ThreadPlayer extends GGPlayer {
 	@Override
 	public void stop() {
 		manager.stop();
-		manager.gameOver();
+		manager.halt();
 		managerThread = null;
 		cleanupAfterMatch();
 

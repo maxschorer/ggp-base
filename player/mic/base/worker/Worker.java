@@ -1,13 +1,21 @@
-package mic;
+package mic.base.worker;
 
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.Role;
 import org.ggp.base.util.statemachine.StateMachine;
+import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
+
+import mic.base.GameProperties;
 
 public interface Worker extends Runnable {
 	/*
+	 * This method should cause the worker to shutdown
+	 */
+	public void halt();
+	/*
 	 * This method should cause the worker to stop to stop its search
+	 * on the current move
 	 */
 	public void stop();
 
@@ -19,7 +27,7 @@ public interface Worker extends Runnable {
 	public void initialize(
 			StateMachine machine,
 			MachineState state,
-			Role role, GameProperties properties);
+			Role role, GameProperties properties) throws MoveDefinitionException;
 
 	/*
 	 * Given a legal move return an evaluation for it
@@ -33,11 +41,4 @@ public interface Worker extends Runnable {
 	public Move getBest();
 
 
-	/*
-	 * Should basically be
-	 * Worker w =  new <CLASS>(...)
-	 * w.initiliaze(...)
-	 * return w
-	 */
-	public Worker clone();
 }

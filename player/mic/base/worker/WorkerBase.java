@@ -1,4 +1,4 @@
-package mic;
+package mic.base.worker;
 
 import java.util.List;
 
@@ -10,28 +10,73 @@ import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 
+import mic.base.GameProperties;
+
 abstract public class WorkerBase implements Worker {
+	protected StateMachine machine;
+	protected MachineState state;
+	protected Role role;
+	protected GameProperties properties;
+	protected List<Move> legals;
 
-	/*
-	 *  these are the methods you need to implement
-	 */
-	abstract public void stop();
-	abstract public void initialize(
-				StateMachine machine,
-				MachineState state,
-				Role role, GameProperties properties);
+	protected volatile Boolean halt;
+	protected volatile Boolean stop;
 
+	abstract protected void search() throws GoalDefinitionException, MoveDefinitionException, TransitionDefinitionException;
 
+	@Override
 	abstract public int eval(Move move);
+	@Override
 	abstract public Move getBest();
-	abstract public Worker clone();
+
+
+	public WorkerBase() {
+		halt = false;
+		stop = true;
+	}
+	@Override
+	public void stop() {
+		stop = true;
+	}
+	@Override
+	public void halt() {
+		halt = true;
+		stop();
+	}
+
+	@Override
+	public void initialize(StateMachine machineIn, MachineState stateIn, Role roleIn, GameProperties propertiesIn)
+			throws MoveDefinitionException {
+		machine = machineIn;
+		state = stateIn;
+		role = roleIn;
+		properties = propertiesIn;
+		legals = machine.getLegalMoves(state, role);
+		stop = false;
+	}
 	
+	protected void startup() {}
+
 	/*
-	 * Run should more or less be equivalent to computeBestMove 
+	 * Run should more or less be equivalent to computeBestMove
 	 * except instead of returning the best move it should store
 	 * it.
 	 */
-	abstract public void run();
+	@Override
+	public void run() {
+		try {
+			while (!halt) {
+				while (stop && !halt) {
+					Thread.yield();
+				}
+				search();
+			}
+		} catch (GoalDefinitionException | MoveDefinitionException | TransitionDefinitionException e) {
+			// Something went wrong
+			e.printStackTrace();
+		}
+	}
+
 
 
 	public MachineState findNext(List<Move> actions, MachineState s, StateMachine m)
