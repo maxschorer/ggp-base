@@ -46,11 +46,11 @@ public class MonteCarloHeuristic implements Heuristic {
 
 	@Override
 	public Value min() {
-		return new SimpleValue(0);
+		return new KAValue(0, true);
 	}
 
 	@Override
 	public Value max() {
-		return new SimpleValue(100);
+		return new KAValue(100, true);
 	}
 }
