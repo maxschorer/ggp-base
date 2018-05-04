@@ -127,7 +127,7 @@ public class TimedMCTSPlayer extends GGPlayer {
 			if (node.children.isEmpty()) {
 				return node;
 			}
-			double bestScore = -1.0;
+			Node branch = null;
 			Node next = null;
 
 			for (Node child : node.children)  {
@@ -135,20 +135,36 @@ public class TimedMCTSPlayer extends GGPlayer {
 					if (grandchild.visits == 0) {
 						return grandchild;
 					}
+				}
+			}
 
-					double score = selectFn(grandchild);
-					if (score > bestScore) {
-						bestScore = score;
-						next = grandchild;
-					}
+			double bestScore = Double.NEGATIVE_INFINITY;
+			for (Node child: node.children) {
+				double score = selectFnMax(child);
+				if (score > bestScore) {
+					bestScore = score;
+					branch = child;
+				}
+			}
+
+			bestScore = Double.NEGATIVE_INFINITY;
+			for (Node grandchild: branch.children) {
+				double score = selectFnMin(grandchild);
+				if (score > bestScore) {
+					bestScore = score;
+					next = grandchild;
 				}
 			}
 			return select(next);
 
 		}
 
-		private double selectFn(Node node) {
-			return node.utility / node.visits + Math.sqrt(2 * Math.log(node.parent.parent.visits) / node.visits);
+
+		private double selectFnMax(Node node) {
+			return node.utility / node.visits + Math.sqrt(2 * Math.log(node.parent.visits) / node.visits);
+		}
+		private double selectFnMin(Node node) {
+			return -1* node.utility / node.visits + Math.sqrt(2 * Math.log(node.parent.visits) / node.visits);
 		}
 
 		/*

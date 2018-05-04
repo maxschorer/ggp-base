@@ -90,7 +90,12 @@ public class TimedKeepAlivePlayer extends GGPlayer {
 
 		private Score heuristic(Role role, MachineState state, StateMachine machine) throws GoalDefinitionException, MoveDefinitionException {
 			int r = findReward(role, state, machine);
-			int m = (int)(100.0 *findLegals(role, state, machine).size() / findActions(role, machine).size());
+			int m;
+			if (findTerminalp(state, machine)) {
+				m = 0;
+			} else {
+				m = (int)(100.0 *findLegals(role, state, machine).size() / findActions(role, machine).size());
+			}
 			boolean t = findTerminalp(state, machine);
 			m_allTerminal &= t;
 			return new Score(r, m, t);
@@ -247,7 +252,7 @@ public class TimedKeepAlivePlayer extends GGPlayer {
 		threadList.add(t);
 
 		/* Let the thread run until 1.5 seconds are left to search */
-		long tleft = timeout - System.currentTimeMillis() - 1500;
+		long tleft = timeout - System.currentTimeMillis() - 1900;
 		if (tleft <= 0) {
 			tleft = 1;
 		}
@@ -259,7 +264,7 @@ public class TimedKeepAlivePlayer extends GGPlayer {
 		//Stop the slave
 		w.stop();
 		/* Let the thread run until 1 seconds are left to halt (shouldn't take that long) */
-		tleft = timeout - System.currentTimeMillis() - 1000;
+		tleft = timeout - System.currentTimeMillis() - 1400;
 		if (tleft <= 0) {
 			tleft = 1;
 		}
