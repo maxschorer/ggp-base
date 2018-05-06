@@ -14,9 +14,11 @@ import mic.base.heuristic.Heuristic;
 
 public class MCTSWorker extends WorkerBase {
 	private final Heuristic heuristic;
+
 	public MCTSWorker(Heuristic h) {
 		heuristic = h;
 	}
+
 	private Node root = null;
 
 	public class Node {
@@ -41,9 +43,12 @@ public class MCTSWorker extends WorkerBase {
 
 	@Override
 	protected void search() throws GoalDefinitionException, MoveDefinitionException, TransitionDefinitionException {
+		//Create or update root
 		if (root == null) {
+			//First search root is null
 			root = new Node(null, role, state, null);
 		} else {
+			//Move root should be the grandchild whose state is the current state
 			boolean found = false;
 			childloop: for (Node child : root.children) {
 				for (Node grandchild : child.children) {
@@ -56,6 +61,7 @@ public class MCTSWorker extends WorkerBase {
 				}
 			}
 			if (!found) {
+				//Something weird happened
 				root = new Node(null, role, state, null);
 			}
 		}
@@ -66,17 +72,11 @@ public class MCTSWorker extends WorkerBase {
 			backpropagate(node, score);
 		}
 	}
-	@Override
-	public void halt() {
-		root = null;
-		super.halt();
-	}
+
 	private Node select(Node node) {
 		if (node.children.isEmpty()) {
 			return node;
 		}
-		Node branch = null;
-		Node next = null;
 
 		for (Node child : node.children)  {
 			for (Node grandchild : child.children) {
@@ -85,6 +85,9 @@ public class MCTSWorker extends WorkerBase {
 				}
 			}
 		}
+
+		Node branch = null;
+		Node next = null;
 
 		double bestScore = Double.NEGATIVE_INFINITY;
 		for (Node child: node.children) {
@@ -149,6 +152,12 @@ public class MCTSWorker extends WorkerBase {
 	}
 
 	@Override
+	public void halt() {
+		root = null;
+		super.halt();
+	}
+
+	@Override
 	public int eval(Move move) {
 		if (!stop) {
 			return 0;
@@ -179,5 +188,4 @@ public class MCTSWorker extends WorkerBase {
 			return bestMove;
 		}
 	}
-
 }

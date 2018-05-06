@@ -5,6 +5,9 @@ import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.ggp.base.apps.player.Player;
+import org.ggp.base.util.statemachine.StateMachine;
+import org.ggp.base.util.statemachine.cache.CachedStateMachine;
+import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
 import mic.base.heuristic.MonteCarloHeuristic;
 import mic.base.manager.EvalManager;
@@ -37,4 +40,8 @@ public class CompetitionPlayer2 extends ThreadPlayer {
 		Player.initialize(new CompetitionPlayer2().getName());
 	}
 
+	@Override
+	public StateMachine getInitialStateMachine() {
+		return new CachedStateMachine(new ProverStateMachine());
+	}
 }

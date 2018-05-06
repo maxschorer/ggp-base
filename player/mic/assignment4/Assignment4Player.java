@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Vector;
 
 import org.ggp.base.apps.player.Player;
+import org.ggp.base.util.statemachine.StateMachine;
+import org.ggp.base.util.statemachine.cache.CachedStateMachine;
+import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
 import mic.base.manager.Manager;
 import mic.base.manager.TopChoiceManager;
@@ -30,4 +33,8 @@ public class Assignment4Player extends ThreadPlayer {
 		Player.initialize(new CompetitionPlayer().getName());
 	}
 
+	@Override
+	public StateMachine getInitialStateMachine() {
+		return new CachedStateMachine(new ProverStateMachine());
+	}
 }
