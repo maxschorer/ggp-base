@@ -81,7 +81,7 @@ public class RedundantSubgoalPruner implements GdlRewriter {
 
 	private boolean compfindp(GdlLiteral goal, List<GdlLiteral> facts) {
 		for (GdlLiteral fact : facts) {
-			if (Unifier.canUnify(fact, goal)) {
+			if (Unifier.canUnify(fact, goal) != null) {
 				return true;
 			}
 		}

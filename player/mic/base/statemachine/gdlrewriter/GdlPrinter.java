@@ -11,6 +11,7 @@ public class GdlPrinter implements GdlRewriter {
 		for (Gdl term : description) {
 			System.out.println(term);
 		}
+		System.out.println();
 		return description;
 	}
 }

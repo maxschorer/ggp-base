@@ -30,9 +30,8 @@ public class RewriteStateMachine extends StateMachine {
 
 	@Override
 	public void initialize(List<Gdl> description) {
-		List<Gdl> newDescription = description;
 		for (GdlRewriter rewriter: rewriters) {
-			newDescription = rewriter.rewrite(description);
+			description = rewriter.rewrite(description);
 		}
 		backingStateMachine.initialize(description);
 	}
