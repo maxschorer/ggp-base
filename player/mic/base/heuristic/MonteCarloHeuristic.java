@@ -2,6 +2,7 @@ package mic.base.heuristic;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
@@ -15,9 +16,9 @@ public class MonteCarloHeuristic implements Heuristic {
 	private int count;
 	private final Random rand;
 
-	public MonteCarloHeuristic(int count, Random rand) {
+	public MonteCarloHeuristic(int count) {
 		this.count = count;
-		this.rand = rand;
+		this.rand = ThreadLocalRandom.current();
 	}
 
 

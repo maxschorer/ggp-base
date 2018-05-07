@@ -11,12 +11,13 @@ import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 
 import mic.base.heuristic.Heuristic;
+import mic.base.heuristic.MonteCarloHeuristic;
 
 public class MCTSWorker extends WorkerBase {
 	private final Heuristic heuristic;
 
-	public MCTSWorker(Heuristic h) {
-		heuristic = h;
+	public MCTSWorker(int count) {
+		heuristic = new MonteCarloHeuristic(count);
 	}
 
 	private Node root = null;
@@ -70,6 +71,9 @@ public class MCTSWorker extends WorkerBase {
 			expand(node);
 			int score = simulate(node);
 			backpropagate(node, score);
+		}
+		if (halt) {
+			root = null;
 		}
 	}
 
@@ -151,11 +155,6 @@ public class MCTSWorker extends WorkerBase {
 		}
 	}
 
-	@Override
-	public void halt() {
-		root = null;
-		super.halt();
-	}
 
 	@Override
 	public int eval(Move move) {

@@ -12,7 +12,6 @@ import mic.base.manager.Manager;
 import mic.base.manager.TopChoiceManager;
 import mic.base.player.ThreadPlayer;
 import mic.base.worker.Worker;
-import mic.competition.CompetitionPlayer;
 
 public class Assignment4Player extends ThreadPlayer {
 
@@ -30,7 +29,7 @@ public class Assignment4Player extends ThreadPlayer {
 	}
 
 	public static void main(String[] args) {
-		Player.initialize(new CompetitionPlayer().getName());
+		Player.initialize(new Assignment4Player().getName());
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package mic.competition;
 
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.ggp.base.apps.player.Player;
 import org.ggp.base.util.statemachine.StateMachine;
@@ -24,10 +23,10 @@ public class CompetitionPlayer2 extends ThreadPlayer {
 		//workers.add(new AlphaBetaWorker(new FocusHeuristic()));
 
 
-		workers.add(new AlphaBetaWorker(new MonteCarloHeuristic(1, ThreadLocalRandom.current())));
-		workers.add(new AlphaBetaWorker(new MonteCarloHeuristic(2, ThreadLocalRandom.current())));
-		workers.add(new AlphaBetaWorker(new MonteCarloHeuristic(3, ThreadLocalRandom.current())));
-		workers.add(new AlphaBetaWorker(new MonteCarloHeuristic(4, ThreadLocalRandom.current())));
+		workers.add(new AlphaBetaWorker(new MonteCarloHeuristic(1)));
+		workers.add(new AlphaBetaWorker(new MonteCarloHeuristic(2)));
+		workers.add(new AlphaBetaWorker(new MonteCarloHeuristic(3)));
+		workers.add(new AlphaBetaWorker(new MonteCarloHeuristic(4)));
 		return new EvalManager(workers);
 	}
 
