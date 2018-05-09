@@ -12,9 +12,11 @@ import mic.base.manager.Manager;
 import mic.base.manager.TopChoiceManager;
 import mic.base.player.ThreadPlayer;
 import mic.base.statemachine.RewriteStateMachine;
+import mic.base.statemachine.gdlrewriter.GdlPrinter;
 import mic.base.statemachine.gdlrewriter.GdlRewriter;
 import mic.base.statemachine.gdlrewriter.RedundantRulePruner;
 import mic.base.statemachine.gdlrewriter.RedundantSubgoalPruner;
+import mic.base.statemachine.gdlrewriter.SubgoalReordering;
 import mic.base.worker.MCTSWorker;
 import mic.base.worker.Worker;
 
@@ -44,7 +46,9 @@ public class Assignment5Player extends ThreadPlayer {
 		rewrites.add(new RedundantSubgoalPruner());
 //		rewrites.add(new GdlPrinter());
 		rewrites.add(new RedundantRulePruner());
-//		rewrites.add(new GdlPrinter());
+		rewrites.add(new GdlPrinter());
+		rewrites.add(new SubgoalReordering());
+		rewrites.add(new GdlPrinter());
 
 		return new RewriteStateMachine(
 				new CachedStateMachine(new ProverStateMachine()),
