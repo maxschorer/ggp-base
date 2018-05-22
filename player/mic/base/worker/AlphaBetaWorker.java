@@ -29,17 +29,22 @@ public class AlphaBetaWorker extends WorkerBase {
 	@Override
 	protected void search() throws GoalDefinitionException, MoveDefinitionException, TransitionDefinitionException {
 		int depth = 0;
-		while (!stop) {
+		init = false;
+		while (!stop && !init) {
 			for (Move move : legals) {
 				Value result = computeMinScore(role, state, machine, move, heuristic.min(), heuristic.max(), depth);
-				if (!stop) {
+				if (!stop && !init) {
 					scoreMap.put(move, result);
 				} else {
 					break;
 				}
 			}
-			++depth;
+			if (!stop && !init) {
+				++depth;
+			}
 		}
+
+		System.out.println("Reached depth: " + depth);
 	}
 
 	private Value computeMinScore(Role role, MachineState state, StateMachine machine, Move move, Value alpha,
@@ -97,7 +102,11 @@ public class AlphaBetaWorker extends WorkerBase {
 		if (!stop) {
 			return 0;
 		} else {
-			return scoreMap.get(move).toInt();
+			if (scoreMap.containsKey(move)) {
+				return scoreMap.get(move).toInt();
+			} else {
+				return 0;
+			}
 		}
 	}
 

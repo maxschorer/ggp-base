@@ -15,10 +15,12 @@ import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 public class MonteCarloHeuristic implements Heuristic {
 	private int count;
 	private final Random rand;
+	public int counter;
 
 	public MonteCarloHeuristic(int count) {
 		this.count = count;
 		this.rand = ThreadLocalRandom.current();
+		counter = 0;
 	}
 
 
@@ -31,6 +33,7 @@ public class MonteCarloHeuristic implements Heuristic {
 			score += depthcharge(role, state, machine);
 		}
 		score = score / count;
+		counter += count;
 		return new KAValue(score, machine.findTerminalp(state));
 	}
 	private int depthcharge(Role role, MachineState state, StateMachine machine) throws GoalDefinitionException, TransitionDefinitionException, MoveDefinitionException {

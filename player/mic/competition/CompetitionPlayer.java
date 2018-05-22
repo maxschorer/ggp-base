@@ -20,9 +20,7 @@ public class CompetitionPlayer extends ThreadPlayer {
 	@Override
 	protected Manager getInitialManager() {
 		List<Worker> workers = ImmutableList.of(
-				new MCTSWorker(1),
-				new MCTSWorker(2),
-				new MCTSWorker(3),
+				new MCTSWorker(4),
 				new MCTSWorker(4)
 			);
 

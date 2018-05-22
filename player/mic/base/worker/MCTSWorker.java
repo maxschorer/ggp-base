@@ -66,12 +66,15 @@ public class MCTSWorker extends WorkerBase {
 				root = new Node(null, role, state, null);
 			}
 		}
-		while (!stop) {
+		init = false;
+		while (!stop && !init) {
 			Node node = select(root);
 			expand(node);
 			int score = simulate(node);
 			backpropagate(node, score);
 		}
+		System.out.println("Preformed: " + ((MonteCarloHeuristic) heuristic).counter + " depthcharges");
+		((MonteCarloHeuristic) heuristic).counter=0;
 		if (halt) {
 			root = null;
 		}
@@ -119,7 +122,7 @@ public class MCTSWorker extends WorkerBase {
 		return node.utility / node.visits + Math.sqrt(2 * Math.log(node.parent.visits) / node.visits);
 	}
 	private double selectFnMin(Node node) {
-		return -1* node.utility / node.visits + Math.sqrt(2 * Math.log(node.parent.visits) / node.visits);
+		return -1* node.utility / node.visits * + Math.sqrt(2 * Math.log(node.parent.visits) / node.visits);
 	}
 
 	/*

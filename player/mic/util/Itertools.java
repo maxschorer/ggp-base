@@ -3,7 +3,7 @@ package mic.util;
 import java.util.Iterator;
 
 public class Itertools {
-	public static<T> Iterable<T> makeIterable(Iterator<T> iter) {
+	public static <T> Iterable<T> makeIterable(Iterator<T> iter) {
 		return new Iterable<T>() {
 			@Override
 			public Iterator<T> iterator() {
@@ -13,7 +13,7 @@ public class Itertools {
 		};
 	}
 
-	public static<T> Iterable<Pair<Integer, T>> enumerate(Iterable<T> i) {
+	public static <T> Iterable<Pair<Integer, T>> enumerate(Iterable<T> i) {
 		return new Iterable<Pair<Integer, T>>() {
 			@Override
 			public Iterator<Pair<Integer, T>> iterator() {
@@ -36,7 +36,7 @@ public class Itertools {
 		};
 	}
 
-	public static<T1, T2> Iterable<Pair<T1, T2>> zip(Iterable<T1> i1, Iterable<T2> i2) {
+	public static <T1, T2> Iterable<Pair<T1, T2>> zip(Iterable<T1> i1, Iterable<T2> i2) {
 		return new Iterable<Pair<T1, T2>>() {
 			@Override
 			public Iterator<Pair<T1, T2>> iterator() {
@@ -54,6 +54,32 @@ public class Itertools {
 						return new Pair<T1, T2>(iter1.next(), iter2.next());
 					}
 
+				};
+			}
+		};
+	}
+
+	public static <T> Iterable<T> chain(Iterable<T> i1, Iterable<T> i2) {
+		return new Iterable<T>() {
+			@Override
+			public Iterator<T> iterator() {
+				return new Iterator<T>() {
+					private final Iterator<T> iter1 = i1.iterator();
+					private final Iterator<T> iter2 = i2.iterator();
+
+					@Override
+					public boolean hasNext() {
+						return (iter1.hasNext() || iter2.hasNext());
+					}
+
+					@Override
+					public T next() {
+						if (iter1.hasNext()) {
+							return iter1.next();
+						} else {
+							return iter2.next();
+						}
+					}
 				};
 			}
 		};

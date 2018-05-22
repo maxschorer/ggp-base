@@ -21,6 +21,7 @@ abstract public class WorkerBase implements Worker {
 
 	protected volatile Boolean halt;
 	protected volatile Boolean stop;
+	protected volatile Boolean init;
 
 	abstract protected void search() throws GoalDefinitionException, MoveDefinitionException, TransitionDefinitionException;
 
@@ -32,6 +33,7 @@ abstract public class WorkerBase implements Worker {
 
 	public WorkerBase() {
 		halt = false;
+		init = false;
 		stop = true;
 	}
 	@Override
@@ -53,8 +55,9 @@ abstract public class WorkerBase implements Worker {
 		properties = propertiesIn;
 		legals = machine.getLegalMoves(state, role);
 		stop = false;
+		init = true;
 	}
-	
+
 	protected void startup() {}
 
 	/*

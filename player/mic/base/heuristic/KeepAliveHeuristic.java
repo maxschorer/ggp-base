@@ -7,8 +7,6 @@ import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 
 public class KeepAliveHeuristic implements Heuristic {
-	private int R;
-	private boolean T;
 
 	@Override
 	public KAValue eval(Role role, MachineState state, StateMachine machine) throws GoalDefinitionException, MoveDefinitionException {
