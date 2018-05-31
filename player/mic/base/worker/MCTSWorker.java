@@ -122,7 +122,7 @@ public class MCTSWorker extends WorkerBase {
 		return node.utility / node.visits + Math.sqrt(2 * Math.log(node.parent.visits) / node.visits);
 	}
 	private double selectFnMin(Node node) {
-		return -1* node.utility / node.visits * + Math.sqrt(2 * Math.log(node.parent.visits) / node.visits);
+		return -1* node.utility / node.visits + Math.sqrt(2 * Math.log(node.parent.visits) / node.visits);
 	}
 
 	/*
